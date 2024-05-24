@@ -3,7 +3,7 @@
 <html lang="en">
 <head><meta charset="utf-8"/>
 <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
-<title>Custom_model_training</title><script src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.1.10/require.min.js"></script>
+<title>BoardingPass_extraction</title><script src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.1.10/require.min.js"></script>
 <style type="text/css">
     pre { line-height: 125%; }
 td.linenos .normal { color: inherit; background-color: transparent; padding-left: 5px; padding-right: 5px; }
@@ -7509,28 +7509,32 @@ a.anchor-link {
 </style>
 <!-- End of mermaid configuration --></head>
 <body class="jp-Notebook" data-jp-theme-light="true" data-jp-theme-name="JupyterLab Light">
-<main><div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs" id="cell-id=4e77b9d8-a905-4f6a-aa09-c1553138cef7">
+<main><div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs" id="cell-id=fb801514-c643-47b6-93ce-397926f4804b">
 <div class="jp-Cell-inputWrapper" tabindex="0">
 <div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
 </div>
 <div class="jp-InputArea jp-Cell-inputArea">
-<div class="jp-InputPrompt jp-InputArea-prompt">In [60]:</div>
+<div class="jp-InputPrompt jp-InputArea-prompt">In [136]:</div>
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
 <div class="cm-editor cm-s-jupyter">
 <div class="highlight hl-ipython3"><pre><span></span><span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">import</span> <span class="nn">io</span>
 <span class="kn">from</span> <span class="nn">azure.core.exceptions</span> <span class="kn">import</span> <span class="n">ResourceNotFoundError</span>
 <span class="kn">from</span> <span class="nn">azure.ai.formrecognizer</span> <span class="kn">import</span> <span class="n">FormRecognizerClient</span>
 <span class="kn">from</span> <span class="nn">azure.ai.formrecognizer</span> <span class="kn">import</span> <span class="n">FormTrainingClient</span>
 <span class="kn">from</span> <span class="nn">azure.core.credentials</span> <span class="kn">import</span> <span class="n">AzureKeyCredential</span>
 <span class="kn">from</span> <span class="nn">azure.keyvault.secrets</span> <span class="kn">import</span> <span class="n">SecretClient</span>
 <span class="kn">from</span> <span class="nn">azure.identity</span> <span class="kn">import</span> <span class="n">DefaultAzureCredential</span>
+<span class="kn">from</span> <span class="nn">azure.storage.blob</span> <span class="kn">import</span> <span class="n">BlobServiceClient</span><span class="p">,</span> <span class="n">ContainerClient</span>
+<span class="kn">from</span> <span class="nn">waiting</span> <span class="kn">import</span> <span class="n">wait</span>
+<span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
 </pre></div>
 </div>
 </div>
 </div>
 </div>
 </div>
-<div class="jp-Cell jp-MarkdownCell jp-Notebook-cell" id="cell-id=84d5f34d-aa80-4455-b10a-93e2821deb19">
+<div class="jp-Cell jp-MarkdownCell jp-Notebook-cell" id="cell-id=0c88ab80-57f0-40b5-ac68-9e42c4664d65">
 <div class="jp-Cell-inputWrapper" tabindex="0">
 <div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
 </div>
@@ -7540,12 +7544,12 @@ a.anchor-link {
 </div>
 </div>
 </div>
-</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs" id="cell-id=fdd52376-8eac-4649-9f63-877b1cc69d15">
+</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs" id="cell-id=6be88183-638d-490a-a53d-940344dfbc1d">
 <div class="jp-Cell-inputWrapper" tabindex="0">
 <div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
 </div>
 <div class="jp-InputArea jp-Cell-inputArea">
-<div class="jp-InputPrompt jp-InputArea-prompt">In [61]:</div>
+<div class="jp-InputPrompt jp-InputArea-prompt">In [137]:</div>
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
 <div class="cm-editor cm-s-jupyter">
 <div class="highlight hl-ipython3"><pre><span></span><span class="n">keyVaultName</span> <span class="o">=</span> <span class="s2">"cvprojectkeyvault"</span>
@@ -7558,12 +7562,12 @@ a.anchor-link {
 </div>
 </div>
 </div>
-</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs" id="cell-id=2845a185-37d2-42e4-96c9-ff766bc581af">
+</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs" id="cell-id=d5e8cd7c-b519-4ce7-a600-b65ea28051f7">
 <div class="jp-Cell-inputWrapper" tabindex="0">
 <div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
 </div>
 <div class="jp-InputArea jp-Cell-inputArea">
-<div class="jp-InputPrompt jp-InputArea-prompt">In [62]:</div>
+<div class="jp-InputPrompt jp-InputArea-prompt">In [138]:</div>
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
 <div class="cm-editor cm-s-jupyter">
 <div class="highlight hl-ipython3"><pre><span></span><span class="n">AZURE_FORM_RECOGNIZER_ENDPOINT</span> <span class="o">=</span> <span class="s2">"https://cvprojectformrecognizer.cognitiveservices.azure.com/"</span>
@@ -7578,16 +7582,59 @@ a.anchor-link {
 </div>
 </div>
 </div>
-</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell" id="cell-id=f4051afa-0b97-49ce-ae27-75e30df8d48b">
+</div>
+<div class="jp-Cell jp-MarkdownCell jp-Notebook-cell" id="cell-id=1eda9cda-8518-4ce3-80a9-e468585352f6">
+<div class="jp-Cell-inputWrapper" tabindex="0">
+<div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
+</div>
+<div class="jp-InputArea jp-Cell-inputArea"><div class="jp-InputPrompt jp-InputArea-prompt">
+</div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput" data-mime-type="text/markdown">
+<h1 id="Get-previously-trained-custom-model">Get previously trained custom model<a class="anchor-link" href="#Get-previously-trained-custom-model">¶</a></h1>
+</div>
+</div>
+</div>
+</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs" id="cell-id=f48c4361-f0c8-4f32-ac96-6aac88924202">
 <div class="jp-Cell-inputWrapper" tabindex="0">
 <div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
 </div>
 <div class="jp-InputArea jp-Cell-inputArea">
-<div class="jp-InputPrompt jp-InputArea-prompt">In [63]:</div>
+<div class="jp-InputPrompt jp-InputArea-prompt">In [139]:</div>
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
 <div class="cm-editor cm-s-jupyter">
 <div class="highlight hl-ipython3"><pre><span></span><span class="n">saved_model_list</span> <span class="o">=</span> <span class="n">form_training_client</span><span class="o">.</span><span class="n">list_custom_models</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+</div>
+</div>
+</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs" id="cell-id=00691141-064d-4d37-b250-78529ff66575">
+<div class="jp-Cell-inputWrapper" tabindex="0">
+<div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
+</div>
+<div class="jp-InputArea jp-Cell-inputArea">
+<div class="jp-InputPrompt jp-InputArea-prompt">In [140]:</div>
+<div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
+<div class="cm-editor cm-s-jupyter">
+<div class="highlight hl-ipython3"><pre><span></span><span class="k">for</span> <span class="n">model</span> <span class="ow">in</span> <span class="n">saved_model_list</span><span class="p">:</span>
+    <span class="k">if</span> <span class="n">model</span><span class="o">.</span><span class="n">status</span> <span class="o">==</span> <span class="s2">"invalid"</span><span class="p">:</span>
+        <span class="n">form_training_client</span><span class="o">.</span><span class="n">delete_model</span><span class="p">(</span><span class="n">model</span><span class="o">.</span><span class="n">model_id</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</div>
+</div>
+</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell" id="cell-id=420d568b-6075-46e4-a70a-ef57d407b698">
+<div class="jp-Cell-inputWrapper" tabindex="0">
+<div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
+</div>
+<div class="jp-InputArea jp-Cell-inputArea">
+<div class="jp-InputPrompt jp-InputArea-prompt">In [141]:</div>
+<div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
+<div class="cm-editor cm-s-jupyter">
+<div class="highlight hl-ipython3"><pre><span></span><span class="n">saved_model_list</span> <span class="o">=</span> <span class="n">form_training_client</span><span class="o">.</span><span class="n">list_custom_models</span><span class="p">()</span>
+<span class="n">my_model_ids</span> <span class="o">=</span> <span class="p">[]</span>
 <span class="k">for</span> <span class="n">model</span> <span class="ow">in</span> <span class="n">saved_model_list</span><span class="p">:</span>
+    <span class="n">my_model_ids</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">model</span><span class="o">.</span><span class="n">model_id</span><span class="p">)</span>
     <span class="nb">print</span><span class="p">(</span><span class="n">model</span><span class="p">)</span>
 </pre></div>
 </div>
@@ -7605,73 +7652,24 @@ a.anchor-link {
 CustomFormModelInfo(model_id=22d27070-d5eb-4c08-b97f-3a9fe0edc6fb, status=ready, training_started_on=2024-05-24 15:07:05+00:00, training_completed_on=2024-05-24 15:07:06+00:00, properties=CustomFormModelProperties(is_composed_model=False), model_name=None)
 CustomFormModelInfo(model_id=2630d0c6-6194-4ce4-ad23-92bdb4029140, status=ready, training_started_on=2024-05-24 14:54:00+00:00, training_completed_on=2024-05-24 14:54:01+00:00, properties=CustomFormModelProperties(is_composed_model=False), model_name=None)
 CustomFormModelInfo(model_id=901abd54-b4b0-422c-b75e-68815c55a367, status=ready, training_started_on=2024-05-24 15:08:42+00:00, training_completed_on=2024-05-24 15:08:44+00:00, properties=CustomFormModelProperties(is_composed_model=False), model_name=None)
+CustomFormModelInfo(model_id=ddae42d8-830e-4b06-9b64-bcd0fde83cb5, status=ready, training_started_on=2024-05-24 15:19:33+00:00, training_completed_on=2024-05-24 15:19:35+00:00, properties=CustomFormModelProperties(is_composed_model=False), model_name=None)
 CustomFormModelInfo(model_id=e26bcc48-012d-4467-b554-7f2d4528fa56, status=ready, training_started_on=2024-05-24 15:01:35+00:00, training_completed_on=2024-05-24 15:01:36+00:00, properties=CustomFormModelProperties(is_composed_model=False), model_name=None)
 </pre>
 </div>
 </div>
 </div>
 </div>
-</div>
-<div class="jp-Cell jp-MarkdownCell jp-Notebook-cell" id="cell-id=2b55b718-06ae-4582-915d-88db2c31a3be">
-<div class="jp-Cell-inputWrapper" tabindex="0">
-<div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
-</div>
-<div class="jp-InputArea jp-Cell-inputArea"><div class="jp-InputPrompt jp-InputArea-prompt">
-</div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput" data-mime-type="text/markdown">
-<h2 id="Training-data-URL">Training data URL<a class="anchor-link" href="#Training-data-URL">¶</a></h2>
-</div>
-</div>
-</div>
-</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs" id="cell-id=637425c3-a886-496e-ab1d-e4e7251e784b">
+</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell" id="cell-id=4677774a-f06a-416b-bb87-35467bb0d74b">
 <div class="jp-Cell-inputWrapper" tabindex="0">
 <div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
 </div>
 <div class="jp-InputArea jp-Cell-inputArea">
-<div class="jp-InputPrompt jp-InputArea-prompt">In [64]:</div>
+<div class="jp-InputPrompt jp-InputArea-prompt">In [142]:</div>
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
 <div class="cm-editor cm-s-jupyter">
-<div class="highlight hl-ipython3"><pre><span></span><span class="n">trainingDataUrl</span> <span class="o">=</span> <span class="n">client</span><span class="o">.</span><span class="n">get_secret</span><span class="p">(</span><span class="s2">"blobstoragetrainingdataurl"</span><span class="p">)</span><span class="o">.</span><span class="n">value</span>
-<span class="c1">#print(trainingDataUrl)</span>
-</pre></div>
-</div>
-</div>
-</div>
-</div>
-</div>
-<div class="jp-Cell jp-MarkdownCell jp-Notebook-cell" id="cell-id=f1c42ce0-2786-4502-8689-d841d9fa08dc">
-<div class="jp-Cell-inputWrapper" tabindex="0">
-<div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
-</div>
-<div class="jp-InputArea jp-Cell-inputArea"><div class="jp-InputPrompt jp-InputArea-prompt">
-</div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput" data-mime-type="text/markdown">
-<h2 id="Labeled-training">Labeled training<a class="anchor-link" href="#Labeled-training">¶</a></h2>
-</div>
-</div>
-</div>
-</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs" id="cell-id=13cba152-7bf6-4d0b-9a32-e8bf94b32da7">
-<div class="jp-Cell-inputWrapper" tabindex="0">
-<div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
-</div>
-<div class="jp-InputArea jp-Cell-inputArea">
-<div class="jp-InputPrompt jp-InputArea-prompt">In [65]:</div>
-<div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
-<div class="cm-editor cm-s-jupyter">
-<div class="highlight hl-ipython3"><pre><span></span><span class="n">labeled_training_process</span> <span class="o">=</span> <span class="n">form_training_client</span><span class="o">.</span><span class="n">begin_training</span><span class="p">(</span><span class="n">trainingDataUrl</span><span class="p">,</span> <span class="n">use_training_labels</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-<span class="n">labeled_custom_model</span> <span class="o">=</span> <span class="n">labeled_training_process</span><span class="o">.</span><span class="n">result</span><span class="p">()</span>
-</pre></div>
-</div>
-</div>
-</div>
-</div>
-</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell" id="cell-id=872d7f11-9268-4fbb-a723-349ed0be2991">
-<div class="jp-Cell-inputWrapper" tabindex="0">
-<div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
-</div>
-<div class="jp-InputArea jp-Cell-inputArea">
-<div class="jp-InputPrompt jp-InputArea-prompt">In [66]:</div>
-<div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
-<div class="cm-editor cm-s-jupyter">
-<div class="highlight hl-ipython3"><pre><span></span><span class="n">labeled_custom_model</span><span class="o">.</span><span class="n">model_id</span>
+<div class="highlight hl-ipython3"><pre><span></span><span class="c1">#labeled_custom_model_id = my_model_ids[-1]</span>
+<span class="n">labeled_custom_model_id</span> <span class="o">=</span> <span class="s1">'ddae42d8-830e-4b06-9b64-bcd0fde83cb5'</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">labeled_custom_model_id</span><span class="p">)</span>
 </pre></div>
 </div>
 </div>
@@ -7681,20 +7679,35 @@ CustomFormModelInfo(model_id=e26bcc48-012d-4467-b554-7f2d4528fa56, status=ready,
 <div class="jp-Collapser jp-OutputCollapser jp-Cell-outputCollapser">
 </div>
 <div class="jp-OutputArea jp-Cell-outputArea">
-<div class="jp-OutputArea-child jp-OutputArea-executeResult">
-<div class="jp-OutputPrompt jp-OutputArea-prompt">Out[66]:</div>
-<div class="jp-RenderedText jp-OutputArea-output jp-OutputArea-executeResult" data-mime-type="text/plain" tabindex="0">
-<pre>'ddae42d8-830e-4b06-9b64-bcd0fde83cb5'</pre>
+<div class="jp-OutputArea-child">
+<div class="jp-OutputPrompt jp-OutputArea-prompt"></div>
+<div class="jp-RenderedText jp-OutputArea-output" data-mime-type="text/plain" tabindex="0">
+<pre>ddae42d8-830e-4b06-9b64-bcd0fde83cb5
+</pre>
 </div>
 </div>
 </div>
 </div>
-</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell" id="cell-id=53513869-b8e7-4840-90f2-337df412aa7c">
+</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs" id="cell-id=080f5e94-0740-4570-9687-5f5b9d338e9f">
 <div class="jp-Cell-inputWrapper" tabindex="0">
 <div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
 </div>
 <div class="jp-InputArea jp-Cell-inputArea">
-<div class="jp-InputPrompt jp-InputArea-prompt">In [67]:</div>
+<div class="jp-InputPrompt jp-InputArea-prompt">In [143]:</div>
+<div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
+<div class="cm-editor cm-s-jupyter">
+<div class="highlight hl-ipython3"><pre><span></span><span class="n">labeled_custom_model</span> <span class="o">=</span> <span class="n">form_training_client</span><span class="o">.</span><span class="n">get_custom_model</span><span class="p">(</span><span class="n">labeled_custom_model_id</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</div>
+</div>
+</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell" id="cell-id=012d5eb5-8ed0-485b-a16a-fc06033cf48f">
+<div class="jp-Cell-inputWrapper" tabindex="0">
+<div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
+</div>
+<div class="jp-InputArea jp-Cell-inputArea">
+<div class="jp-InputPrompt jp-InputArea-prompt">In [144]:</div>
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
 <div class="cm-editor cm-s-jupyter">
 <div class="highlight hl-ipython3"><pre><span></span><span class="n">labeled_custom_model</span><span class="o">.</span><span class="n">status</span>
@@ -7708,245 +7721,69 @@ CustomFormModelInfo(model_id=e26bcc48-012d-4467-b554-7f2d4528fa56, status=ready,
 </div>
 <div class="jp-OutputArea jp-Cell-outputArea">
 <div class="jp-OutputArea-child jp-OutputArea-executeResult">
-<div class="jp-OutputPrompt jp-OutputArea-prompt">Out[67]:</div>
+<div class="jp-OutputPrompt jp-OutputArea-prompt">Out[144]:</div>
 <div class="jp-RenderedText jp-OutputArea-output jp-OutputArea-executeResult" data-mime-type="text/plain" tabindex="0">
 <pre>'ready'</pre>
 </div>
 </div>
 </div>
 </div>
-</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell" id="cell-id=d7b03e8b-d004-4eac-9c02-2c3f087652b5">
+</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs" id="cell-id=bce7d2bd-58b3-4221-9705-737e485438ee">
 <div class="jp-Cell-inputWrapper" tabindex="0">
 <div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
 </div>
 <div class="jp-InputArea jp-Cell-inputArea">
-<div class="jp-InputPrompt jp-InputArea-prompt">In [68]:</div>
+<div class="jp-InputPrompt jp-InputArea-prompt">In [145]:</div>
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
 <div class="cm-editor cm-s-jupyter">
-<div class="highlight hl-ipython3"><pre><span></span><span class="n">labeled_custom_model</span><span class="o">.</span><span class="n">training_documents</span>
+<div class="highlight hl-ipython3"><pre><span></span><span class="n">form_recognizer_client</span> <span class="o">=</span> <span class="n">form_training_client</span><span class="o">.</span><span class="n">get_form_recognizer_client</span><span class="p">()</span>
 </pre></div>
 </div>
 </div>
 </div>
 </div>
-<div class="jp-Cell-outputWrapper">
-<div class="jp-Collapser jp-OutputCollapser jp-Cell-outputCollapser">
 </div>
-<div class="jp-OutputArea jp-Cell-outputArea">
-<div class="jp-OutputArea-child jp-OutputArea-executeResult">
-<div class="jp-OutputPrompt jp-OutputArea-prompt">Out[68]:</div>
-<div class="jp-RenderedText jp-OutputArea-output jp-OutputArea-executeResult" data-mime-type="text/plain" tabindex="0">
-<pre>[TrainingDocumentInfo(name=boarding_pass_1.pdf, status=succeeded, page_count=1, errors=[], model_id=None),
- TrainingDocumentInfo(name=boarding_pass_10.pdf, status=succeeded, page_count=1, errors=[], model_id=None),
- TrainingDocumentInfo(name=boarding_pass_2.pdf, status=succeeded, page_count=1, errors=[], model_id=None),
- TrainingDocumentInfo(name=boarding_pass_3.pdf, status=succeeded, page_count=1, errors=[], model_id=None),
- TrainingDocumentInfo(name=boarding_pass_4.pdf, status=succeeded, page_count=1, errors=[], model_id=None),
- TrainingDocumentInfo(name=boarding_pass_5.pdf, status=succeeded, page_count=1, errors=[], model_id=None),
- TrainingDocumentInfo(name=boarding_pass_6.pdf, status=succeeded, page_count=1, errors=[], model_id=None),
- TrainingDocumentInfo(name=boarding_pass_7.pdf, status=succeeded, page_count=1, errors=[], model_id=None),
- TrainingDocumentInfo(name=boarding_pass_8.pdf, status=succeeded, page_count=1, errors=[], model_id=None),
- TrainingDocumentInfo(name=boarding_pass_9.pdf, status=succeeded, page_count=1, errors=[], model_id=None),
- TrainingDocumentInfo(name=boarding-avkash.pdf, status=succeeded, page_count=1, errors=[], model_id=None),
- TrainingDocumentInfo(name=boarding-james-webb.pdf, status=succeeded, page_count=1, errors=[], model_id=None),
- TrainingDocumentInfo(name=boarding-james.pdf, status=succeeded, page_count=1, errors=[], model_id=None),
- TrainingDocumentInfo(name=boarding-libby.pdf, status=succeeded, page_count=1, errors=[], model_id=None),
- TrainingDocumentInfo(name=boarding-radha-s-kumar.pdf, status=succeeded, page_count=1, errors=[], model_id=None),
- TrainingDocumentInfo(name=boarding-sameer.pdf, status=succeeded, page_count=1, errors=[], model_id=None)]</pre>
-</div>
-</div>
-</div>
-</div>
-</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell" id="cell-id=d294ddd7-e72b-4768-8092-39f46c973ab3">
-<div class="jp-Cell-inputWrapper" tabindex="0">
-<div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
-</div>
-<div class="jp-InputArea jp-Cell-inputArea">
-<div class="jp-InputPrompt jp-InputArea-prompt">In [69]:</div>
-<div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
-<div class="cm-editor cm-s-jupyter">
-<div class="highlight hl-ipython3"><pre><span></span><span class="k">for</span> <span class="n">doc</span> <span class="ow">in</span> <span class="n">labeled_custom_model</span><span class="o">.</span><span class="n">training_documents</span><span class="p">:</span>
-    <span class="nb">print</span><span class="p">(</span><span class="s2">"Document name: </span><span class="si">{}</span><span class="s2">"</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">doc</span><span class="o">.</span><span class="n">name</span><span class="p">))</span>
-    <span class="nb">print</span><span class="p">(</span><span class="s2">"Document status: </span><span class="si">{}</span><span class="s2">"</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">doc</span><span class="o">.</span><span class="n">status</span><span class="p">))</span>
-    <span class="nb">print</span><span class="p">(</span><span class="s2">"Document page count: </span><span class="si">{}</span><span class="s2">"</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">doc</span><span class="o">.</span><span class="n">page_count</span><span class="p">))</span>
-    <span class="nb">print</span><span class="p">(</span><span class="s2">"Document errors: </span><span class="si">{}</span><span class="s2">"</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">doc</span><span class="o">.</span><span class="n">errors</span><span class="p">))</span>
-</pre></div>
-</div>
-</div>
-</div>
-</div>
-<div class="jp-Cell-outputWrapper">
-<div class="jp-Collapser jp-OutputCollapser jp-Cell-outputCollapser">
-</div>
-<div class="jp-OutputArea jp-Cell-outputArea">
-<div class="jp-OutputArea-child">
-<div class="jp-OutputPrompt jp-OutputArea-prompt"></div>
-<div class="jp-RenderedText jp-OutputArea-output" data-mime-type="text/plain" tabindex="0">
-<pre>Document name: boarding_pass_1.pdf
-Document status: succeeded
-Document page count: 1
-Document errors: []
-Document name: boarding_pass_10.pdf
-Document status: succeeded
-Document page count: 1
-Document errors: []
-Document name: boarding_pass_2.pdf
-Document status: succeeded
-Document page count: 1
-Document errors: []
-Document name: boarding_pass_3.pdf
-Document status: succeeded
-Document page count: 1
-Document errors: []
-Document name: boarding_pass_4.pdf
-Document status: succeeded
-Document page count: 1
-Document errors: []
-Document name: boarding_pass_5.pdf
-Document status: succeeded
-Document page count: 1
-Document errors: []
-Document name: boarding_pass_6.pdf
-Document status: succeeded
-Document page count: 1
-Document errors: []
-Document name: boarding_pass_7.pdf
-Document status: succeeded
-Document page count: 1
-Document errors: []
-Document name: boarding_pass_8.pdf
-Document status: succeeded
-Document page count: 1
-Document errors: []
-Document name: boarding_pass_9.pdf
-Document status: succeeded
-Document page count: 1
-Document errors: []
-Document name: boarding-avkash.pdf
-Document status: succeeded
-Document page count: 1
-Document errors: []
-Document name: boarding-james-webb.pdf
-Document status: succeeded
-Document page count: 1
-Document errors: []
-Document name: boarding-james.pdf
-Document status: succeeded
-Document page count: 1
-Document errors: []
-Document name: boarding-libby.pdf
-Document status: succeeded
-Document page count: 1
-Document errors: []
-Document name: boarding-radha-s-kumar.pdf
-Document status: succeeded
-Document page count: 1
-Document errors: []
-Document name: boarding-sameer.pdf
-Document status: succeeded
-Document page count: 1
-Document errors: []
-</pre>
-</div>
-</div>
-</div>
-</div>
-</div>
-<div class="jp-Cell jp-MarkdownCell jp-Notebook-cell" id="cell-id=9c098938-ea2b-451d-8e5f-574e0d9fec99">
+<div class="jp-Cell jp-MarkdownCell jp-Notebook-cell" id="cell-id=84a62706-c2e4-4bd7-9946-aa0d12ff9fbe">
 <div class="jp-Cell-inputWrapper" tabindex="0">
 <div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
 </div>
 <div class="jp-InputArea jp-Cell-inputArea"><div class="jp-InputPrompt jp-InputArea-prompt">
 </div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput" data-mime-type="text/markdown">
-<h2 id="Model-Testing">Model Testing<a class="anchor-link" href="#Model-Testing">¶</a></h2>
+<h1 id="Read-boarding-passes-from-Blob-storage">Read boarding passes from Blob storage<a class="anchor-link" href="#Read-boarding-passes-from-Blob-storage">¶</a></h1>
 </div>
 </div>
 </div>
-</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs" id="cell-id=a0a26197-e5f4-49cd-baa2-790d8534eac5">
+</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs" id="cell-id=a126eda3-115e-48d8-8adf-e129939e7014">
 <div class="jp-Cell-inputWrapper" tabindex="0">
 <div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
 </div>
 <div class="jp-InputArea jp-Cell-inputArea">
-<div class="jp-InputPrompt jp-InputArea-prompt">In [70]:</div>
+<div class="jp-InputPrompt jp-InputArea-prompt">In [146]:</div>
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
 <div class="cm-editor cm-s-jupyter">
-<div class="highlight hl-ipython3"><pre><span></span><span class="n">test_file</span> <span class="o">=</span> <span class="nb">open</span><span class="p">(</span><span class="s2">"../material_preparation_step/BoardingPasses/boarding_pass_johannes.pdf"</span><span class="p">,</span> <span class="s2">"rb"</span><span class="p">)</span>
+<div class="highlight hl-ipython3"><pre><span></span><span class="n">account_url</span> <span class="o">=</span> <span class="s2">"https://computervisionproject.blob.core.windows.net"</span>
+<span class="n">default_credential</span> <span class="o">=</span> <span class="n">DefaultAzureCredential</span><span class="p">()</span>
+
+<span class="c1"># Create the BlobServiceClient object</span>
+<span class="n">blob_service_client</span> <span class="o">=</span> <span class="n">BlobServiceClient</span><span class="p">(</span><span class="n">account_url</span><span class="p">,</span> <span class="n">credential</span><span class="o">=</span><span class="n">default_credential</span><span class="p">)</span>
+<span class="n">kiosk_container_client</span> <span class="o">=</span> <span class="n">ContainerClient</span><span class="p">(</span><span class="n">account_url</span><span class="p">,</span> <span class="n">credential</span><span class="o">=</span><span class="n">default_credential</span><span class="p">,</span> <span class="n">container_name</span><span class="o">=</span><span class="s2">"kiosk"</span><span class="p">)</span>
 </pre></div>
 </div>
 </div>
 </div>
 </div>
-</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs" id="cell-id=a5374443-79f6-479a-a27c-34cf3af56896">
+</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell" id="cell-id=b342008b-ba29-4775-ab7b-e60b304ba954">
 <div class="jp-Cell-inputWrapper" tabindex="0">
 <div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
 </div>
 <div class="jp-InputArea jp-Cell-inputArea">
-<div class="jp-InputPrompt jp-InputArea-prompt">In [71]:</div>
+<div class="jp-InputPrompt jp-InputArea-prompt">In [147]:</div>
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
 <div class="cm-editor cm-s-jupyter">
-<div class="highlight hl-ipython3"><pre><span></span><span class="n">form_recognizer_client</span> <span class="o">=</span> <span class="n">form_training_client</span><span class="o">.</span><span class="n">get_form_recognizer_client</span><span class="p">()</span>
-<span class="n">labeled_custom_test_action</span> <span class="o">=</span> <span class="n">form_recognizer_client</span><span class="o">.</span><span class="n">begin_recognize_custom_forms</span><span class="p">(</span><span class="n">model_id</span><span class="o">=</span><span class="n">labeled_custom_model</span><span class="o">.</span><span class="n">model_id</span><span class="p">,</span> <span class="n">form</span><span class="o">=</span><span class="n">test_file</span><span class="p">)</span>
-</pre></div>
-</div>
-</div>
-</div>
-</div>
-</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell" id="cell-id=0fcd339e-fa76-472a-8f65-668663083be1">
-<div class="jp-Cell-inputWrapper" tabindex="0">
-<div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
-</div>
-<div class="jp-InputArea jp-Cell-inputArea">
-<div class="jp-InputPrompt jp-InputArea-prompt">In [72]:</div>
-<div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
-<div class="cm-editor cm-s-jupyter">
-<div class="highlight hl-ipython3"><pre><span></span><span class="n">labeled_custom_test_action</span><span class="o">.</span><span class="n">status</span><span class="p">()</span>
-</pre></div>
-</div>
-</div>
-</div>
-</div>
-<div class="jp-Cell-outputWrapper">
-<div class="jp-Collapser jp-OutputCollapser jp-Cell-outputCollapser">
-</div>
-<div class="jp-OutputArea jp-Cell-outputArea">
-<div class="jp-OutputArea-child jp-OutputArea-executeResult">
-<div class="jp-OutputPrompt jp-OutputArea-prompt">Out[72]:</div>
-<div class="jp-RenderedText jp-OutputArea-output jp-OutputArea-executeResult" data-mime-type="text/plain" tabindex="0">
-<pre>'InProgress'</pre>
-</div>
-</div>
-</div>
-</div>
-</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs" id="cell-id=576054ce-5500-475f-9ba3-74b98d7706a9">
-<div class="jp-Cell-inputWrapper" tabindex="0">
-<div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
-</div>
-<div class="jp-InputArea jp-Cell-inputArea">
-<div class="jp-InputPrompt jp-InputArea-prompt">In [73]:</div>
-<div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
-<div class="cm-editor cm-s-jupyter">
-<div class="highlight hl-ipython3"><pre><span></span><span class="n">labeled_custom_test_action_result</span> <span class="o">=</span> <span class="n">labeled_custom_test_action</span><span class="o">.</span><span class="n">result</span><span class="p">()</span>
-</pre></div>
-</div>
-</div>
-</div>
-</div>
-</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell" id="cell-id=5829f27e-92b6-43d6-92c0-b85942198dc0">
-<div class="jp-Cell-inputWrapper" tabindex="0">
-<div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
-</div>
-<div class="jp-InputArea jp-Cell-inputArea">
-<div class="jp-InputPrompt jp-InputArea-prompt">In [74]:</div>
-<div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
-<div class="cm-editor cm-s-jupyter">
-<div class="highlight hl-ipython3"><pre><span></span><span class="k">for</span> <span class="n">recognized_content</span> <span class="ow">in</span> <span class="n">labeled_custom_test_action_result</span><span class="p">:</span>
-    <span class="nb">print</span><span class="p">(</span><span class="s2">"Form type: </span><span class="si">{}</span><span class="s2">"</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">recognized_content</span><span class="o">.</span><span class="n">form_type</span><span class="p">))</span>
-    <span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">field</span> <span class="ow">in</span> <span class="n">recognized_content</span><span class="o">.</span><span class="n">fields</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
-        <span class="nb">print</span><span class="p">(</span><span class="s2">"Field '</span><span class="si">{}</span><span class="s2">' has label '</span><span class="si">{}</span><span class="s2">' with value '</span><span class="si">{}</span><span class="s2">' and a confidence score of </span><span class="si">{}</span><span class="s2">"</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
-            <span class="n">name</span><span class="p">,</span>
-            <span class="n">field</span><span class="o">.</span><span class="n">label_data</span><span class="o">.</span><span class="n">text</span> <span class="k">if</span> <span class="n">field</span><span class="o">.</span><span class="n">label_data</span> <span class="k">else</span> <span class="n">name</span><span class="p">,</span>
-            <span class="n">field</span><span class="o">.</span><span class="n">value</span><span class="p">,</span>
-            <span class="n">field</span><span class="o">.</span><span class="n">confidence</span>
-        <span class="p">))</span>
+<div class="highlight hl-ipython3"><pre><span></span><span class="n">files_to_process</span> <span class="o">=</span> <span class="p">[]</span>
+<span class="k">for</span> <span class="n">file</span> <span class="ow">in</span> <span class="n">kiosk_container_client</span><span class="o">.</span><span class="n">walk_blobs</span><span class="p">(</span><span class="s1">'boarding_passes/'</span><span class="p">,</span> <span class="n">delimiter</span><span class="o">=</span><span class="s1">'/'</span><span class="p">):</span>
+    <span class="nb">print</span><span class="p">(</span><span class="n">file</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
+    <span class="n">files_to_process</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">file</span><span class="p">)</span>
 </pre></div>
 </div>
 </div>
@@ -7959,46 +7796,632 @@ Document errors: []
 <div class="jp-OutputArea-child">
 <div class="jp-OutputPrompt jp-OutputArea-prompt"></div>
 <div class="jp-RenderedText jp-OutputArea-output" data-mime-type="text/plain" tabindex="0">
-<pre>Form type: custom:ddae42d8-830e-4b06-9b64-bcd0fde83cb5
-Field 'Seat 2' has label 'Seat 2' with value '16F' and a confidence score of 0.994
-Field 'Gate 2' has label 'Gate 2' with value 'G1' and a confidence score of 0.994
-Field 'Date 2' has label 'Date 2' with value 'April 20, 2022' and a confidence score of 0.99
-Field 'Baggage' has label 'Baggage' with value 'NO' and a confidence score of 0.994
-Field 'Passenger Name 2' has label 'Passenger Name 2' with value 'Johannes Czylwik' and a confidence score of 0.992
-Field 'To' has label 'To' with value 'Chicago' and a confidence score of 0.993
-Field 'From 2' has label 'From 2' with value 'San Francisco' and a confidence score of 0.992
-Field 'From' has label 'From' with value 'San Francisco' and a confidence score of 0.99
-Field 'Flight No.' has label 'Flight No.' with value '234' and a confidence score of 0.994
-Field 'Gate' has label 'Gate' with value 'G1' and a confidence score of 0.994
-Field 'Date' has label 'Date' with value 'April 20, 2022' and a confidence score of 0.99
-Field 'Class' has label 'Class' with value 'E' and a confidence score of 0.994
-Field 'Boarding Time 2' has label 'Boarding Time 2' with value '10:00 AM PST' and a confidence score of 0.992
-Field 'To 2' has label 'To 2' with value 'Chicago' and a confidence score of 0.992
-Field 'Passenger Name' has label 'Passenger Name' with value 'Johannes Czylwik' and a confidence score of 0.993
-Field 'Boarding Time' has label 'Boarding Time' with value '10:00 AM PST' and a confidence score of 0.99
-Field 'Carrier' has label 'Carrier' with value 'UA' and a confidence score of 0.994
-Field 'Seat' has label 'Seat' with value '16F' and a confidence score of 0.994
-Field 'Ticket No.' has label 'Ticket No.' with value 'ETK-737268572620C' and a confidence score of 0.989
+<pre>boarding_passes/boarding-avkash.pdf
+boarding_passes/boarding-james-webb.pdf
+boarding_passes/boarding-james.pdf
+boarding_passes/boarding-libby.pdf
+boarding_passes/boarding-radha-s-kumar.pdf
+boarding_passes/boarding-sameer.pdf
+boarding_passes/boarding_pass_johannes.pdf
 </pre>
 </div>
 </div>
 </div>
 </div>
-</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs" id="cell-id=e8a6bbc4-bed6-4dce-8548-daf6a80d99b9">
+</div>
+<div class="jp-Cell jp-MarkdownCell jp-Notebook-cell" id="cell-id=8074ab7a-35f9-4569-b4c2-2a035a97284b">
+<div class="jp-Cell-inputWrapper" tabindex="0">
+<div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
+</div>
+<div class="jp-InputArea jp-Cell-inputArea"><div class="jp-InputPrompt jp-InputArea-prompt">
+</div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput" data-mime-type="text/markdown">
+<h1 id="Recognize-information-from-boarding-passes-using-custom-model">Recognize information from boarding passes using custom model<a class="anchor-link" href="#Recognize-information-from-boarding-passes-using-custom-model">¶</a></h1>
+</div>
+</div>
+</div>
+</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs" id="cell-id=843b0ea9-3969-4eef-a0d2-8f6df6c96793">
 <div class="jp-Cell-inputWrapper" tabindex="0">
 <div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
 </div>
 <div class="jp-InputArea jp-Cell-inputArea">
-<div class="jp-InputPrompt jp-InputArea-prompt">In [ ]:</div>
+<div class="jp-InputPrompt jp-InputArea-prompt">In [148]:</div>
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
 <div class="cm-editor cm-s-jupyter">
-<div class="highlight hl-ipython3"><pre><span></span> 
+<div class="highlight hl-ipython3"><pre><span></span><span class="k">def</span> <span class="nf">is_model_ready</span><span class="p">(</span><span class="n">action</span><span class="p">):</span>
+    <span class="k">if</span> <span class="n">action</span><span class="o">.</span><span class="n">status</span><span class="p">()</span> <span class="o">==</span> <span class="s1">'succeeded'</span><span class="p">:</span>
+        <span class="k">return</span> <span class="kc">True</span>
+    <span class="k">return</span> <span class="kc">False</span>
 </pre></div>
 </div>
 </div>
 </div>
 </div>
-</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs" id="cell-id=12d4b219-192c-49b9-8024-10034c6b79d9">
+</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell" id="cell-id=5c6b350a-28da-450f-9e65-a0bcb8c43ed7">
+<div class="jp-Cell-inputWrapper" tabindex="0">
+<div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
+</div>
+<div class="jp-InputArea jp-Cell-inputArea">
+<div class="jp-InputPrompt jp-InputArea-prompt">In [149]:</div>
+<div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
+<div class="cm-editor cm-s-jupyter">
+<div class="highlight hl-ipython3"><pre><span></span><span class="n">results</span> <span class="o">=</span> <span class="p">[]</span>
+
+<span class="k">for</span> <span class="n">file</span> <span class="ow">in</span> <span class="n">files_to_process</span><span class="p">:</span>
+    <span class="n">blob_client</span> <span class="o">=</span> <span class="n">blob_service_client</span><span class="o">.</span><span class="n">get_blob_client</span><span class="p">(</span><span class="n">container</span><span class="o">=</span><span class="s2">"kiosk"</span><span class="p">,</span> <span class="n">blob</span><span class="o">=</span><span class="n">file</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
+    <span class="n">stream</span> <span class="o">=</span> <span class="n">io</span><span class="o">.</span><span class="n">BytesIO</span><span class="p">()</span>
+    <span class="n">blob_client</span><span class="o">.</span><span class="n">download_blob</span><span class="p">()</span><span class="o">.</span><span class="n">readinto</span><span class="p">(</span><span class="n">stream</span><span class="p">)</span>
+    <span class="n">pdf</span> <span class="o">=</span> <span class="n">stream</span><span class="o">.</span><span class="n">getvalue</span><span class="p">()</span>
+    <span class="n">recognize_action</span> <span class="o">=</span> <span class="n">form_recognizer_client</span><span class="o">.</span><span class="n">begin_recognize_custom_forms</span><span class="p">(</span><span class="n">model_id</span><span class="o">=</span><span class="n">labeled_custom_model_id</span><span class="p">,</span> <span class="n">form</span><span class="o">=</span><span class="n">pdf</span><span class="p">)</span>
+    <span class="n">wait</span><span class="p">(</span><span class="k">lambda</span><span class="p">:</span> <span class="n">is_model_ready</span><span class="p">(</span><span class="n">recognize_action</span><span class="p">),</span> <span class="n">timeout_seconds</span><span class="o">=</span><span class="mi">120</span><span class="p">,</span> <span class="n">waiting_for</span><span class="o">=</span><span class="s2">"Custom Form Recognition: "</span><span class="o">+</span><span class="n">file</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">"Custom Form recognition done: "</span><span class="o">+</span><span class="n">file</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
+    <span class="n">results</span><span class="o">.</span><span class="n">append</span><span class="p">({</span><span class="s2">"file"</span><span class="p">:</span> <span class="n">file</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="s2">"model_result"</span><span class="p">:</span> <span class="n">recognize_action</span><span class="o">.</span><span class="n">result</span><span class="p">()})</span>
+</pre></div>
+</div>
+</div>
+</div>
+</div>
+<div class="jp-Cell-outputWrapper">
+<div class="jp-Collapser jp-OutputCollapser jp-Cell-outputCollapser">
+</div>
+<div class="jp-OutputArea jp-Cell-outputArea">
+<div class="jp-OutputArea-child">
+<div class="jp-OutputPrompt jp-OutputArea-prompt"></div>
+<div class="jp-RenderedText jp-OutputArea-output" data-mime-type="text/plain" tabindex="0">
+<pre>Custom Form recognition done: boarding_passes/boarding-avkash.pdf
+Custom Form recognition done: boarding_passes/boarding-james-webb.pdf
+Custom Form recognition done: boarding_passes/boarding-james.pdf
+Custom Form recognition done: boarding_passes/boarding-libby.pdf
+Custom Form recognition done: boarding_passes/boarding-radha-s-kumar.pdf
+Custom Form recognition done: boarding_passes/boarding-sameer.pdf
+Custom Form recognition done: boarding_passes/boarding_pass_johannes.pdf
+</pre>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="jp-Cell jp-MarkdownCell jp-Notebook-cell" id="cell-id=3b20cce5-a908-4eef-8cef-e4ae6a08a8a2">
+<div class="jp-Cell-inputWrapper" tabindex="0">
+<div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
+</div>
+<div class="jp-InputArea jp-Cell-inputArea"><div class="jp-InputPrompt jp-InputArea-prompt">
+</div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput" data-mime-type="text/markdown">
+<h1 id="Format-results-and-write-to-Blob-Storage">Format results and write to Blob Storage<a class="anchor-link" href="#Format-results-and-write-to-Blob-Storage">¶</a></h1>
+</div>
+</div>
+</div>
+</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs" id="cell-id=ddbb42e4-91e1-4065-af4c-3c610cfe9b23">
+<div class="jp-Cell-inputWrapper" tabindex="0">
+<div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
+</div>
+<div class="jp-InputArea jp-Cell-inputArea">
+<div class="jp-InputPrompt jp-InputArea-prompt">In [150]:</div>
+<div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
+<div class="cm-editor cm-s-jupyter">
+<div class="highlight hl-ipython3"><pre><span></span><span class="k">def</span> <span class="nf">model_result_to_dict</span><span class="p">(</span><span class="n">mr</span><span class="p">):</span>
+    <span class="n">res_dict</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="k">for</span> <span class="n">recognized_content</span> <span class="ow">in</span> <span class="n">mr</span><span class="p">:</span>
+        <span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">field</span> <span class="ow">in</span> <span class="n">recognized_content</span><span class="o">.</span><span class="n">fields</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="n">res_dict</span><span class="p">[</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="n">field</span><span class="o">.</span><span class="n">value</span>
+    <span class="k">return</span> <span class="n">res_dict</span>
+</pre></div>
+</div>
+</div>
+</div>
+</div>
+</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell" id="cell-id=de952422-6b2e-4b08-8c63-b55fb3f9f1d7">
+<div class="jp-Cell-inputWrapper" tabindex="0">
+<div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
+</div>
+<div class="jp-InputArea jp-Cell-inputArea">
+<div class="jp-InputPrompt jp-InputArea-prompt">In [151]:</div>
+<div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
+<div class="cm-editor cm-s-jupyter">
+<div class="highlight hl-ipython3"><pre><span></span><span class="k">for</span> <span class="n">r</span> <span class="ow">in</span> <span class="n">results</span><span class="p">:</span>
+    <span class="nb">print</span><span class="p">(</span><span class="n">r</span><span class="p">[</span><span class="s1">'file'</span><span class="p">])</span>
+    <span class="n">r</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">model_result_to_dict</span><span class="p">(</span><span class="n">r</span><span class="p">[</span><span class="s1">'model_result'</span><span class="p">]))</span>
+    <span class="k">del</span> <span class="n">r</span><span class="p">[</span><span class="s1">'model_result'</span><span class="p">]</span>
+</pre></div>
+</div>
+</div>
+</div>
+</div>
+<div class="jp-Cell-outputWrapper">
+<div class="jp-Collapser jp-OutputCollapser jp-Cell-outputCollapser">
+</div>
+<div class="jp-OutputArea jp-Cell-outputArea">
+<div class="jp-OutputArea-child">
+<div class="jp-OutputPrompt jp-OutputArea-prompt"></div>
+<div class="jp-RenderedText jp-OutputArea-output" data-mime-type="text/plain" tabindex="0">
+<pre>boarding_passes/boarding-avkash.pdf
+boarding_passes/boarding-james-webb.pdf
+boarding_passes/boarding-james.pdf
+boarding_passes/boarding-libby.pdf
+boarding_passes/boarding-radha-s-kumar.pdf
+boarding_passes/boarding-sameer.pdf
+boarding_passes/boarding_pass_johannes.pdf
+</pre>
+</div>
+</div>
+</div>
+</div>
+</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell" id="cell-id=78b7350e-1bd6-41df-93b3-18d74f3cf0a1">
+<div class="jp-Cell-inputWrapper" tabindex="0">
+<div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
+</div>
+<div class="jp-InputArea jp-Cell-inputArea">
+<div class="jp-InputPrompt jp-InputArea-prompt">In [152]:</div>
+<div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
+<div class="cm-editor cm-s-jupyter">
+<div class="highlight hl-ipython3"><pre><span></span><span class="n">results</span>
+</pre></div>
+</div>
+</div>
+</div>
+</div>
+<div class="jp-Cell-outputWrapper">
+<div class="jp-Collapser jp-OutputCollapser jp-Cell-outputCollapser">
+</div>
+<div class="jp-OutputArea jp-Cell-outputArea">
+<div class="jp-OutputArea-child jp-OutputArea-executeResult">
+<div class="jp-OutputPrompt jp-OutputArea-prompt">Out[152]:</div>
+<div class="jp-RenderedText jp-OutputArea-output jp-OutputArea-executeResult" data-mime-type="text/plain" tabindex="0">
+<pre>[{'file': 'boarding_passes/boarding-avkash.pdf',
+  'Seat': '20A',
+  'Gate 2': 'G1',
+  'Boarding Time 2': '10:00 AM PST',
+  'Seat 2': '20A',
+  'Gate': 'G1',
+  'Passenger Name 2': 'Avkash Chauhan',
+  'Boarding Time': '10:00 AM PST',
+  'Date 2': 'April 20, 2022',
+  'Passenger Name': 'Avkash Chauhan',
+  'To 2': 'Chicago',
+  'Baggage': 'NO',
+  'Carrier': 'UA',
+  'Flight No.': '234',
+  'From 2': 'San Francisco',
+  'To': 'Chicago',
+  'Date': 'April 20, 2022',
+  'Class': 'E',
+  'From': 'San Francisco',
+  'Ticket No.': 'ETK-34236751E'},
+ {'file': 'boarding_passes/boarding-james-webb.pdf',
+  'Baggage': 'YES',
+  'Seat': '1A',
+  'To 2': 'Chicago',
+  'Passenger Name 2': 'James Webb',
+  'Seat 2': '1A',
+  'From': 'San Francisco',
+  'Flight No.': '234',
+  'Gate': 'G1',
+  'Gate 2': 'G1',
+  'From 2': 'San Francisco',
+  'Carrier': 'UA',
+  'To': 'Chicago',
+  'Date': 'April 20, 2022',
+  'Ticket No.': 'ETK-34236748B',
+  'Passenger Name': 'James Webb',
+  'Boarding Time 2': '10:00 AM PST',
+  'Boarding Time': '10:00 AM PST',
+  'Class': 'B',
+  'Date 2': 'April 20, 2022'},
+ {'file': 'boarding_passes/boarding-james.pdf',
+  'Seat 2': '25B',
+  'Baggage': 'YES',
+  'Seat': '25B',
+  'Date': 'April 20, 2022',
+  'To 2': 'Chicago',
+  'Boarding Time': '10:00 AM PST',
+  'Ticket No.': 'ETK-34236750E',
+  'From': 'San Francisco',
+  'Flight No.': '234',
+  'To': 'Chicago',
+  'Boarding Time 2': '10:00 AM PST',
+  'Gate': 'G1',
+  'Carrier': 'UA',
+  'Class': 'E',
+  'From 2': 'San Francisco',
+  'Date 2': 'April 20, 2022',
+  'Gate 2': 'G1',
+  'Passenger Name 2': 'James Jackson',
+  'Passenger Name': 'James Jackson'},
+ {'file': 'boarding_passes/boarding-libby.pdf',
+  'Seat 2': '3D',
+  'Baggage': 'YES',
+  'Seat': '3D',
+  'Date': 'April 20, 2022',
+  'To 2': 'Chicago',
+  'Boarding Time': '10:00 AM PST',
+  'Ticket No.': 'ETK-34236749B',
+  'From': 'San Francisco',
+  'Flight No.': '234',
+  'To': 'Chicago',
+  'Boarding Time 2': '10:00 AM PST',
+  'Gate': 'G1',
+  'Carrier': 'UA',
+  'Class': 'B',
+  'From 2': 'San Francisco',
+  'Date 2': 'April 20, 2022',
+  'Gate 2': 'G1',
+  'Passenger Name 2': 'Libby Herold',
+  'Passenger Name': 'Libby Herold'},
+ {'file': 'boarding_passes/boarding-radha-s-kumar.pdf',
+  'Seat 2': '34B',
+  'Baggage': 'YES',
+  'Seat': '34B',
+  'Date': 'April 20, 2022',
+  'To 2': 'Chicago',
+  'Boarding Time': '10:00 AM PST',
+  'Ticket No.': 'ETK-34236747E',
+  'From': 'San Francisco',
+  'Flight No.': '234',
+  'To': 'Chicago',
+  'Boarding Time 2': '10:00 AM PST',
+  'Gate': 'G1',
+  'Carrier': 'UA',
+  'Class': 'E',
+  'From 2': 'San Francisco',
+  'Date 2': 'April 20, 2022',
+  'Gate 2': 'G1',
+  'Passenger Name 2': 'Radha S Kumar',
+  'Passenger Name': 'Radha S Kumar'},
+ {'file': 'boarding_passes/boarding-sameer.pdf',
+  'Boarding Time': '10:00 AM PST',
+  'From': 'San Francisco',
+  'To 2': 'Chicago',
+  'Gate 2': 'G1',
+  'Carrier': 'UA',
+  'Ticket No.': 'ETK-34236746E',
+  'To': 'Chicago',
+  'Seat': '34A',
+  'Flight No.': '234',
+  'Passenger Name': 'Sameer Kumar',
+  'Passenger Name 2': 'Sameer Kumar',
+  'Seat 2': '34A',
+  'From 2': 'San Francisco',
+  'Date 2': 'April 20, 2022',
+  'Gate': 'G1',
+  'Class': 'E',
+  'Baggage': 'YES',
+  'Boarding Time 2': '10:00 AM PST',
+  'Date': 'April 20, 2022'},
+ {'file': 'boarding_passes/boarding_pass_johannes.pdf',
+  'Date 2': 'April 20, 2022',
+  'Flight No.': '234',
+  'Gate 2': 'G1',
+  'Ticket No.': 'ETK-737268572620C',
+  'Class': 'E',
+  'To': 'Chicago',
+  'Gate': 'G1',
+  'Boarding Time 2': '10:00 AM PST',
+  'Passenger Name 2': 'Johannes Czylwik',
+  'Passenger Name': 'Johannes Czylwik',
+  'Carrier': 'UA',
+  'Date': 'April 20, 2022',
+  'From': 'San Francisco',
+  'Seat 2': '16F',
+  'Seat': '16F',
+  'Boarding Time': '10:00 AM PST',
+  'To 2': 'Chicago',
+  'Baggage': 'NO',
+  'From 2': 'San Francisco'}]</pre>
+</div>
+</div>
+</div>
+</div>
+</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell" id="cell-id=e4901150-fe02-4298-805a-f0cf48f84416">
+<div class="jp-Cell-inputWrapper" tabindex="0">
+<div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
+</div>
+<div class="jp-InputArea jp-Cell-inputArea">
+<div class="jp-InputPrompt jp-InputArea-prompt">In [153]:</div>
+<div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
+<div class="cm-editor cm-s-jupyter">
+<div class="highlight hl-ipython3"><pre><span></span><span class="n">df_bp_info</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">results</span><span class="p">)</span>
+<span class="n">df_bp_info</span>
+</pre></div>
+</div>
+</div>
+</div>
+</div>
+<div class="jp-Cell-outputWrapper">
+<div class="jp-Collapser jp-OutputCollapser jp-Cell-outputCollapser">
+</div>
+<div class="jp-OutputArea jp-Cell-outputArea">
+<div class="jp-OutputArea-child jp-OutputArea-executeResult">
+<div class="jp-OutputPrompt jp-OutputArea-prompt">Out[153]:</div>
+<div class="jp-RenderedHTMLCommon jp-RenderedHTML jp-OutputArea-output jp-OutputArea-executeResult" data-mime-type="text/html" tabindex="0">
+<div>
+<style scoped="">
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+<thead>
+<tr style="text-align: right;">
+<th></th>
+<th>file</th>
+<th>Seat</th>
+<th>Gate 2</th>
+<th>Boarding Time 2</th>
+<th>Seat 2</th>
+<th>Gate</th>
+<th>Passenger Name 2</th>
+<th>Boarding Time</th>
+<th>Date 2</th>
+<th>Passenger Name</th>
+<th>To 2</th>
+<th>Baggage</th>
+<th>Carrier</th>
+<th>Flight No.</th>
+<th>From 2</th>
+<th>To</th>
+<th>Date</th>
+<th>Class</th>
+<th>From</th>
+<th>Ticket No.</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<th>0</th>
+<td>boarding_passes/boarding-avkash.pdf</td>
+<td>20A</td>
+<td>G1</td>
+<td>10:00 AM PST</td>
+<td>20A</td>
+<td>G1</td>
+<td>Avkash Chauhan</td>
+<td>10:00 AM PST</td>
+<td>April 20, 2022</td>
+<td>Avkash Chauhan</td>
+<td>Chicago</td>
+<td>NO</td>
+<td>UA</td>
+<td>234</td>
+<td>San Francisco</td>
+<td>Chicago</td>
+<td>April 20, 2022</td>
+<td>E</td>
+<td>San Francisco</td>
+<td>ETK-34236751E</td>
+</tr>
+<tr>
+<th>1</th>
+<td>boarding_passes/boarding-james-webb.pdf</td>
+<td>1A</td>
+<td>G1</td>
+<td>10:00 AM PST</td>
+<td>1A</td>
+<td>G1</td>
+<td>James Webb</td>
+<td>10:00 AM PST</td>
+<td>April 20, 2022</td>
+<td>James Webb</td>
+<td>Chicago</td>
+<td>YES</td>
+<td>UA</td>
+<td>234</td>
+<td>San Francisco</td>
+<td>Chicago</td>
+<td>April 20, 2022</td>
+<td>B</td>
+<td>San Francisco</td>
+<td>ETK-34236748B</td>
+</tr>
+<tr>
+<th>2</th>
+<td>boarding_passes/boarding-james.pdf</td>
+<td>25B</td>
+<td>G1</td>
+<td>10:00 AM PST</td>
+<td>25B</td>
+<td>G1</td>
+<td>James Jackson</td>
+<td>10:00 AM PST</td>
+<td>April 20, 2022</td>
+<td>James Jackson</td>
+<td>Chicago</td>
+<td>YES</td>
+<td>UA</td>
+<td>234</td>
+<td>San Francisco</td>
+<td>Chicago</td>
+<td>April 20, 2022</td>
+<td>E</td>
+<td>San Francisco</td>
+<td>ETK-34236750E</td>
+</tr>
+<tr>
+<th>3</th>
+<td>boarding_passes/boarding-libby.pdf</td>
+<td>3D</td>
+<td>G1</td>
+<td>10:00 AM PST</td>
+<td>3D</td>
+<td>G1</td>
+<td>Libby Herold</td>
+<td>10:00 AM PST</td>
+<td>April 20, 2022</td>
+<td>Libby Herold</td>
+<td>Chicago</td>
+<td>YES</td>
+<td>UA</td>
+<td>234</td>
+<td>San Francisco</td>
+<td>Chicago</td>
+<td>April 20, 2022</td>
+<td>B</td>
+<td>San Francisco</td>
+<td>ETK-34236749B</td>
+</tr>
+<tr>
+<th>4</th>
+<td>boarding_passes/boarding-radha-s-kumar.pdf</td>
+<td>34B</td>
+<td>G1</td>
+<td>10:00 AM PST</td>
+<td>34B</td>
+<td>G1</td>
+<td>Radha S Kumar</td>
+<td>10:00 AM PST</td>
+<td>April 20, 2022</td>
+<td>Radha S Kumar</td>
+<td>Chicago</td>
+<td>YES</td>
+<td>UA</td>
+<td>234</td>
+<td>San Francisco</td>
+<td>Chicago</td>
+<td>April 20, 2022</td>
+<td>E</td>
+<td>San Francisco</td>
+<td>ETK-34236747E</td>
+</tr>
+<tr>
+<th>5</th>
+<td>boarding_passes/boarding-sameer.pdf</td>
+<td>34A</td>
+<td>G1</td>
+<td>10:00 AM PST</td>
+<td>34A</td>
+<td>G1</td>
+<td>Sameer Kumar</td>
+<td>10:00 AM PST</td>
+<td>April 20, 2022</td>
+<td>Sameer Kumar</td>
+<td>Chicago</td>
+<td>YES</td>
+<td>UA</td>
+<td>234</td>
+<td>San Francisco</td>
+<td>Chicago</td>
+<td>April 20, 2022</td>
+<td>E</td>
+<td>San Francisco</td>
+<td>ETK-34236746E</td>
+</tr>
+<tr>
+<th>6</th>
+<td>boarding_passes/boarding_pass_johannes.pdf</td>
+<td>16F</td>
+<td>G1</td>
+<td>10:00 AM PST</td>
+<td>16F</td>
+<td>G1</td>
+<td>Johannes Czylwik</td>
+<td>10:00 AM PST</td>
+<td>April 20, 2022</td>
+<td>Johannes Czylwik</td>
+<td>Chicago</td>
+<td>NO</td>
+<td>UA</td>
+<td>234</td>
+<td>San Francisco</td>
+<td>Chicago</td>
+<td>April 20, 2022</td>
+<td>E</td>
+<td>San Francisco</td>
+<td>ETK-737268572620C</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell" id="cell-id=db34683a-2114-47ce-9302-8a16ede617ac">
+<div class="jp-Cell-inputWrapper" tabindex="0">
+<div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
+</div>
+<div class="jp-InputArea jp-Cell-inputArea">
+<div class="jp-InputPrompt jp-InputArea-prompt">In [155]:</div>
+<div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
+<div class="cm-editor cm-s-jupyter">
+<div class="highlight hl-ipython3"><pre><span></span><span class="n">parquet_file</span> <span class="o">=</span> <span class="n">io</span><span class="o">.</span><span class="n">BytesIO</span><span class="p">()</span>
+<span class="n">df_bp_info</span><span class="o">.</span><span class="n">to_parquet</span><span class="p">(</span><span class="n">parquet_file</span><span class="p">,</span> <span class="n">engine</span> <span class="o">=</span> <span class="s1">'pyarrow'</span><span class="p">)</span>
+<span class="n">parquet_file</span><span class="o">.</span><span class="n">seek</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</div>
+</div>
+<div class="jp-Cell-outputWrapper">
+<div class="jp-Collapser jp-OutputCollapser jp-Cell-outputCollapser">
+</div>
+<div class="jp-OutputArea jp-Cell-outputArea">
+<div class="jp-OutputArea-child jp-OutputArea-executeResult">
+<div class="jp-OutputPrompt jp-OutputArea-prompt">Out[155]:</div>
+<div class="jp-RenderedText jp-OutputArea-output jp-OutputArea-executeResult" data-mime-type="text/plain" tabindex="0">
+<pre>0</pre>
+</div>
+</div>
+</div>
+</div>
+</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs" id="cell-id=43b8d908-6792-42c0-9475-c6b7143345a0">
+<div class="jp-Cell-inputWrapper" tabindex="0">
+<div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
+</div>
+<div class="jp-InputArea jp-Cell-inputArea">
+<div class="jp-InputPrompt jp-InputArea-prompt">In [156]:</div>
+<div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
+<div class="cm-editor cm-s-jupyter">
+<div class="highlight hl-ipython3"><pre><span></span><span class="n">container</span> <span class="o">=</span> <span class="s1">'kiosk'</span>
+<span class="n">blob_path</span> <span class="o">=</span> <span class="s1">'extracted_boarding_pass_details/boarding_pass_details.parquet'</span>
+<span class="n">blob_client</span> <span class="o">=</span> <span class="n">blob_service_client</span><span class="o">.</span><span class="n">get_blob_client</span><span class="p">(</span><span class="n">container</span> <span class="o">=</span> <span class="n">container</span><span class="p">,</span> <span class="n">blob</span> <span class="o">=</span> <span class="n">blob_path</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</div>
+</div>
+</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell" id="cell-id=d8a7190c-83af-4e40-bfab-28e3f46bbe30">
+<div class="jp-Cell-inputWrapper" tabindex="0">
+<div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
+</div>
+<div class="jp-InputArea jp-Cell-inputArea">
+<div class="jp-InputPrompt jp-InputArea-prompt">In [159]:</div>
+<div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
+<div class="cm-editor cm-s-jupyter">
+<div class="highlight hl-ipython3"><pre><span></span><span class="n">blob_client</span><span class="o">.</span><span class="n">upload_blob</span><span class="p">(</span><span class="n">data</span> <span class="o">=</span> <span class="n">parquet_file</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</div>
+</div>
+<div class="jp-Cell-outputWrapper">
+<div class="jp-Collapser jp-OutputCollapser jp-Cell-outputCollapser">
+</div>
+<div class="jp-OutputArea jp-Cell-outputArea">
+<div class="jp-OutputArea-child jp-OutputArea-executeResult">
+<div class="jp-OutputPrompt jp-OutputArea-prompt">Out[159]:</div>
+<div class="jp-RenderedText jp-OutputArea-output jp-OutputArea-executeResult" data-mime-type="text/plain" tabindex="0">
+<pre>{'etag': '"0x8DC7C067617C8DA"',
+ 'last_modified': datetime.datetime(2024, 5, 24, 15, 30, 37, tzinfo=datetime.timezone.utc),
+ 'content_md5': bytearray(b'lV\xec\xde\x1cK\xbcC\x89\x80rY\xff\xc9\xd9J'),
+ 'client_request_id': '919dba58-19e2-11ef-a117-8cf8c5f0a202',
+ 'request_id': 'ea852516-e01e-0066-55ef-ad2aeb000000',
+ 'version': '2024-05-04',
+ 'version_id': None,
+ 'date': datetime.datetime(2024, 5, 24, 15, 30, 36, tzinfo=datetime.timezone.utc),
+ 'request_server_encrypted': True,
+ 'encryption_key_sha256': None,
+ 'encryption_scope': None}</pre>
+</div>
+</div>
+</div>
+</div>
+</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs" id="cell-id=3648b5c1-d0a4-45c1-b7d9-e5277997232f">
 <div class="jp-Cell-inputWrapper" tabindex="0">
 <div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
 </div>
