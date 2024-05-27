@@ -1,0 +1,1 @@
+I took some screenshots as requested, but the full results are visible in the HTML exports of my Jupyter Notebook code (or the .ipynb files).
