@@ -1,6 +1,7 @@
-# README Template
+# README
 
-This is the project starter repo for Udacity's _Building Computer Vision Solutions with Azure_ course, project _Automated Passenger Boarding Kiosk_. 
+"Passenger Boarding Kiosk" project implementation by Johannes Czylwik.
+Part of the Udacity Azure AI Engineer course.
 
 ## License
 
